@@ -1,0 +1,46 @@
+services:
+  orbitguard-db:
+    image: mysql:8.0
+    container_name: orbitguard-db-rm93032
+    environment:
+      MYSQL_ROOT_PASSWORD: root_orbitguard_pass
+      MYSQL_DATABASE: orbitguard_db
+      MYSQL_USER: orbitguard_user
+      MYSQL_PASSWORD: orbitguard_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - orbitguard-mysql-data:/var/lib/mysql
+    networks:
+      - orbitguard-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "orbitguard_user", "-porbitguard_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  orbitguard-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: orbitguard-api-rm93032:1.0
+    container_name: orbitguard-api-rm93032
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ORBITGUARD_PROJECT_NAME: OrbitGuard Climate
+      ConnectionStrings__DefaultConnection: server=orbitguard-db-rm93032;port=3306;database=orbitguard_db;user=orbitguard_user;password=orbitguard_pass
+    ports:
+      - "8080:8080"
+    depends_on:
+      orbitguard-db:
+        condition: service_healthy
+    networks:
+      - orbitguard-network
+
+volumes:
+  orbitguard-mysql-data:
+
+networks:
+  orbitguard-network:
+    driver: bridge
