@@ -1,0 +1,254 @@
+PS C:\Users\andte\orbitguard-climate> docker logs orbitguard-api-rm93032
+info: Microsoft.EntityFrameworkCore.Migrations[20411]
+      Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT GET_LOCK('__orbitguard_db_EFMigrationsLock', 259200)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (26ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE IF NOT EXISTS `__EFMigrationsHistory` (
+          `MigrationId` varchar(150) CHARACTER SET utf8mb4 NOT NULL,
+          `ProductVersion` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
+          CONSTRAINT `PK___EFMigrationsHistory` PRIMARY KEY (`MigrationId`)
+      ) CHARACTER SET=utf8mb4;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='orbitguard_db' AND TABLE_NAME='__EFMigrationsHistory';
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT `MigrationId`, `ProductVersion`
+      FROM `__EFMigrationsHistory`
+      ORDER BY `MigrationId`;
+info: Microsoft.EntityFrameworkCore.Migrations[20405]
+      No migrations were applied. The database is already up to date.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT RELEASE_LOCK('__orbitguard_db_EFMigrationsLock')
+warn: Microsoft.AspNetCore.Hosting.Diagnostics[15]
+      Overriding HTTP_PORTS '8080' and HTTPS_PORTS ''. Binding to values defined by URLS instead 'http://+:8080'.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://[::]:8080
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /app
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://localhost:8080/ - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: GET /'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: GET /'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://localhost:8080/ - 200 - application/json;+charset=utf-8 33.5000ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://localhost:8080/swagger/index.html - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://localhost:8080/swagger/index.html - 200 - text/html;charset=utf-8 36.9226ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://localhost:8080/swagger/swagger-ui-bundle.js - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://localhost:8080/swagger/swagger-ui-standalone-preset.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/swagger-ui-standalone-preset.js'. Physical path: 'N/A'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://localhost:8080/swagger/swagger-ui-standalone-preset.js - 200 230280 text/javascript 22.0189ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://localhost:8080/swagger/swagger-ui-bundle.js - 200 1456926 text/javascript 24.4660ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://localhost:8080/swagger/v1/swagger.json - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://localhost:8080/swagger/v1/swagger.json - 200 - application/json;charset=utf-8 67.5828ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://localhost:8080/api/areas - application/json 141
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'OrbitGuard.Api.Controllers.AreasController.Create (OrbitGuard.Api)'
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "Create", controller = "Areas"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[OrbitGuard.Api.Models.MonitoredArea]] Create(OrbitGuard.Api.Models.MonitoredArea) on controller OrbitGuard.Api.Controllers.AreasController (OrbitGuard.Api).
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (35ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Decimal), @p2='?' (Size = 160), @p3='?' (DbType = Decimal), @p4='?' (Size = 120), @p5='?' (Size = 30)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO `monitored_areas` (`created_at`, `latitude`, `location`, `longitude`, `name`, `risk_level`)
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+      SELECT `id`
+      FROM `monitored_areas`
+      WHERE ROW_COUNT() = 1 AND `id` = LAST_INSERT_ID();
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing CreatedAtActionResult, writing value of type 'OrbitGuard.Api.Models.MonitoredArea'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action OrbitGuard.Api.Controllers.AreasController.Create (OrbitGuard.Api) in 382.479ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'OrbitGuard.Api.Controllers.AreasController.Create (OrbitGuard.Api)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://localhost:8080/api/areas - 201 - application/json;+charset=utf-8 408.4796ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://localhost:8080/api/areas - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'OrbitGuard.Api.Controllers.AreasController.GetAll (OrbitGuard.Api)'
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "GetAll", controller = "Areas"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.IEnumerable`1[OrbitGuard.Api.Models.MonitoredArea]]] GetAll() on controller OrbitGuard.Api.Controllers.AreasController (OrbitGuard.Api).
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT `m`.`id`, `m`.`created_at`, `m`.`latitude`, `m`.`location`, `m`.`longitude`, `m`.`name`, `m`.`risk_level`
+      FROM `monitored_areas` AS `m`
+      ORDER BY `m`.`id`
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing ObjectResult, writing value of type 'System.Collections.Generic.List`1[[OrbitGuard.Api.Models.MonitoredArea, OrbitGuard.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action OrbitGuard.Api.Controllers.AreasController.GetAll (OrbitGuard.Api) in 218.1366ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'OrbitGuard.Api.Controllers.AreasController.GetAll (OrbitGuard.Api)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://localhost:8080/api/areas - 200 - application/json;+charset=utf-8 223.6904ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://localhost:8080/api/readings - application/json 115
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'OrbitGuard.Api.Controllers.ReadingsController.Create (OrbitGuard.Api)'
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "Create", controller = "Readings"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[OrbitGuard.Api.Models.SatelliteReading]] Create(OrbitGuard.Api.Models.SatelliteReading) on controller OrbitGuard.Api.Controllers.ReadingsController (OrbitGuard.Api).
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__reading_MonitoredAreaId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `monitored_areas` AS `m`
+          WHERE `m`.`id` = @__reading_MonitoredAreaId_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Decimal), @p2='?' (DbType = Int32), @p3='?' (DbType = Decimal), @p4='?' (DbType = Decimal), @p5='?' (DbType = Decimal)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO `satellite_readings` (`captured_at`, `humidity`, `monitored_area_id`, `rainfall`, `temperature`, `vegetation_index`)
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+      SELECT `id`
+      FROM `satellite_readings`
+      WHERE ROW_COUNT() = 1 AND `id` = LAST_INSERT_ID();
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing CreatedAtActionResult, writing value of type 'OrbitGuard.Api.Models.SatelliteReading'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action OrbitGuard.Api.Controllers.ReadingsController.Create (OrbitGuard.Api) in 74.8841ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'OrbitGuard.Api.Controllers.ReadingsController.Create (OrbitGuard.Api)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://localhost:8080/api/readings - 201 - application/json;+charset=utf-8 79.3781ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://localhost:8080/api/alerts - application/json 259
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'OrbitGuard.Api.Controllers.AlertsController.Create (OrbitGuard.Api)'
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "Create", controller = "Alerts"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[OrbitGuard.Api.Models.ClimateAlert]] Create(OrbitGuard.Api.Models.ClimateAlert) on controller OrbitGuard.Api.Controllers.AlertsController (OrbitGuard.Api).
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__alert_MonitoredAreaId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `monitored_areas` AS `m`
+          WHERE `m`.`id` = @__alert_MonitoredAreaId_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__alert_SatelliteReadingId_0='?' (DbType = Int32), @__alert_MonitoredAreaId_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `satellite_readings` AS `s`
+          WHERE (`s`.`id` = @__alert_SatelliteReadingId_0) AND (`s`.`monitored_area_id` = @__alert_MonitoredAreaId_1))
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p0='?' (Size = 80), @p1='?' (DbType = DateTime), @p2='?' (Size = 500), @p3='?' (DbType = Int32), @p4='?' (DbType = Int32), @p5='?' (Size = 30), @p6='?' (Size = 30)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO `climate_alerts` (`alert_type`, `created_at`, `description`, `monitored_area_id`, `satellite_reading_id`, `severity`, `status`)
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+      SELECT `id`
+      FROM `climate_alerts`
+      WHERE ROW_COUNT() = 1 AND `id` = LAST_INSERT_ID();
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing CreatedAtActionResult, writing value of type 'OrbitGuard.Api.Models.ClimateAlert'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action OrbitGuard.Api.Controllers.AlertsController.Create (OrbitGuard.Api) in 204.8707ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'OrbitGuard.Api.Controllers.AlertsController.Create (OrbitGuard.Api)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://localhost:8080/api/alerts - 201 - application/json;+charset=utf-8 208.4799ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://localhost:8080/api/alerts - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'OrbitGuard.Api.Controllers.AlertsController.GetAll (OrbitGuard.Api)'
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "GetAll", controller = "Alerts"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.IEnumerable`1[OrbitGuard.Api.Models.ClimateAlert]]] GetAll() on controller OrbitGuard.Api.Controllers.AlertsController (OrbitGuard.Api).
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT `c`.`id`, `c`.`alert_type`, `c`.`created_at`, `c`.`description`, `c`.`monitored_area_id`, `c`.`satellite_reading_id`, `c`.`severity`, `c`.`status`, `m`.`id`, `m`.`created_at`, `m`.`latitude`, `m`.`location`, `m`.`longitude`, `m`.`name`, `m`.`risk_level`, `s`.`id`, `s`.`captured_at`, `s`.`humidity`, `s`.`monitored_area_id`, `s`.`rainfall`, `s`.`temperature`, `s`.`vegetation_index`
+      FROM `climate_alerts` AS `c`
+      INNER JOIN `monitored_areas` AS `m` ON `c`.`monitored_area_id` = `m`.`id`
+      LEFT JOIN `satellite_readings` AS `s` ON `c`.`satellite_reading_id` = `s`.`id`
+      ORDER BY `c`.`id`
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing ObjectResult, writing value of type 'System.Collections.Generic.List`1[[OrbitGuard.Api.Models.ClimateAlert, OrbitGuard.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action OrbitGuard.Api.Controllers.AlertsController.GetAll (OrbitGuard.Api) in 65.5851ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'OrbitGuard.Api.Controllers.AlertsController.GetAll (OrbitGuard.Api)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://localhost:8080/api/alerts - 200 - application/json;+charset=utf-8 68.9749ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 PUT http://localhost:8080/api/alerts/1 - application/json 231
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'OrbitGuard.Api.Controllers.AlertsController.Update (OrbitGuard.Api)'
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "Update", controller = "Alerts"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Update(Int32, OrbitGuard.Api.Models.ClimateAlert) on controller OrbitGuard.Api.Controllers.AlertsController (OrbitGuard.Api).
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c`.`id`, `c`.`alert_type`, `c`.`created_at`, `c`.`description`, `c`.`monitored_area_id`, `c`.`satellite_reading_id`, `c`.`severity`, `c`.`status`
+      FROM `climate_alerts` AS `c`
+      WHERE `c`.`id` = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__updatedAlert_MonitoredAreaId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `monitored_areas` AS `m`
+          WHERE `m`.`id` = @__updatedAlert_MonitoredAreaId_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__updatedAlert_SatelliteReadingId_0='?' (DbType = Int32), @__updatedAlert_MonitoredAreaId_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `satellite_readings` AS `s`
+          WHERE (`s`.`id` = @__updatedAlert_SatelliteReadingId_0) AND (`s`.`monitored_area_id` = @__updatedAlert_MonitoredAreaId_1))
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (Size = 500)], CommandType='Text', CommandTimeout='30']
+      SET AUTOCOMMIT = 1;
+      UPDATE `climate_alerts` SET `description` = @p0
+      WHERE `id` = @p1;
+      SELECT ROW_COUNT();
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing OkObjectResult, writing value of type 'OrbitGuard.Api.Models.ClimateAlert'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action OrbitGuard.Api.Controllers.AlertsController.Update (OrbitGuard.Api) in 40.5654ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'OrbitGuard.Api.Controllers.AlertsController.Update (OrbitGuard.Api)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 PUT http://localhost:8080/api/alerts/1 - 200 - application/json;+charset=utf-8 44.0480ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 DELETE http://localhost:8080/api/alerts/1 - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'OrbitGuard.Api.Controllers.AlertsController.Delete (OrbitGuard.Api)'
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "Delete", controller = "Alerts"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Delete(Int32) on controller OrbitGuard.Api.Controllers.AlertsController (OrbitGuard.Api).
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c`.`id`, `c`.`alert_type`, `c`.`created_at`, `c`.`description`, `c`.`monitored_area_id`, `c`.`satellite_reading_id`, `c`.`severity`, `c`.`status`
+      FROM `climate_alerts` AS `c`
+      WHERE `c`.`id` = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (33ms) [Parameters=[@p0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SET AUTOCOMMIT = 1;
+      DELETE FROM `climate_alerts`
+      WHERE `id` = @p0;
+      SELECT ROW_COUNT();
+info: Microsoft.AspNetCore.Mvc.StatusCodeResult[1]
+      Executing StatusCodeResult, setting HTTP status code 204
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action OrbitGuard.Api.Controllers.AlertsController.Delete (OrbitGuard.Api) in 49.492ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'OrbitGuard.Api.Controllers.AlertsController.Delete (OrbitGuard.Api)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 DELETE http://localhost:8080/api/alerts/1 - 204 - - 53.4414ms
+
+What's next:
+    View and search logs for all containers in one place
+    with Docker Desktop's Logs view. docker-desktop://dashboard/logs
+PS C:\Users\andte\orbitguard-climate> 
