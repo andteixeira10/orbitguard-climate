@@ -1,0 +1,258 @@
+RELATÓRIO FINAL - DEVOPS TOOLS & CLOUD COMPUTING
+
+ORBITGUARD CLIMATE
+
+Global Solution 2026/1 - FIAP
+
+
+1. IDENTIFICAÇÃO
+
+Nome da equipe:
+OrbitGuard Climate
+
+Integrante:
+Andre Teixeira
+
+RM:
+93032
+
+Turma:
+INSERIR_TURMA
+
+Disciplina:
+DevOps Tools & Cloud Computing
+
+Professor:
+João Carlos Menk
+
+
+2. LINKS DA ENTREGA
+
+GitHub:
+INSERIR_LINK_DO_GITHUB
+
+Vídeo demonstrativo no YouTube:
+INSERIR_LINK_DO_VIDEO
+
+
+
+3. DESCRIÇÃO DA SOLUÇÃO
+
+O OrbitGuard Climate é uma API conteinerizada para monitoramento de áreas de risco climático usando dados simulados de satélite.
+
+A solução conecta o tema da economia espacial com um problema real da Terra: o acompanhamento de áreas vulneráveis a eventos climáticos como seca, calor extremo, baixa umidade e ausência de chuva.
+
+A aplicação permite cadastrar áreas monitoradas, registrar leituras orbitais simuladas e gerar alertas climáticos relacionados aos dados coletados.
+
+A solução foi desenvolvida com .NET 9 Web API, MySQL 8.0, Entity Framework Core, Docker, Docker Compose e Swagger.
+
+
+4. ARQUITETURA MACRO
+
+A arquitetura da solução é composta por:
+
+- Usuário/Professor acessando a aplicação pelo navegador.
+- Máquina virtual Linux na Azure com IP público.
+- Docker Compose responsável por orquestrar os containers.
+- Rede Docker chamada orbitguard-network.
+- Container da API chamado orbitguard-api-rm93032.
+- Container do banco chamado orbitguard-db-rm93032.
+- Banco MySQL 8.0.
+- Volume nomeado orbitguard-mysql-data para persistência dos dados.
+
+Inserir aqui a imagem da arquitetura:
+arquitetura-orbitguard.png
+
+
+5. CONTAINERS DA SOLUÇÃO
+
+5.1 Container da aplicação
+
+Nome:
+orbitguard-api-rm93032
+
+Tecnologia:
+.NET 9 Web API
+
+Porta:
+8080
+
+Usuário não privilegiado:
+appuser
+
+Diretório de trabalho:
+/app
+
+
+Imagem:
+Imagem personalizada criada por Dockerfile.
+
+Responsabilidades:
+- Expor os endpoints da API.
+- Disponibilizar Swagger.
+- Realizar operações CRUD.
+- Conectar ao banco MySQL.
+- Aplicar migrations do Entity Framework Core.
+
+
+5.2 Container do banco de dados
+
+Nome:
+orbitguard-db-rm93032
+
+Imagem:
+mysql:8.0
+
+Banco:
+orbitguard_db
+
+Porta:
+3306
+
+Volume nomeado:
+orbitguard-mysql-data
+
+Diretório de persistência:
+/var/lib/mysql
+
+Responsabilidades:
+- Armazenar as tabelas da solução.
+- Persistir dados criados pela API.
+- Manter relacionamento entre as entidades.
+
+
+6. MODELO DE DADOS
+
+A solução possui três tabelas principais:
+
+6.1 monitored_areas
+
+Representa uma área monitorada.
+
+Exemplo:
+Fazenda Aurora - Ribeirão Preto/SP.
+
+6.2 satellite_readings
+
+Representa uma leitura simulada de satélite associada a uma área monitorada.
+
+Exemplo:
+Temperatura, umidade, chuva e índice de vegetação.
+
+6.3 climate_alerts
+
+Representa um alerta climático associado a uma área e, opcionalmente, a uma leitura de satélite.
+
+Exemplo:
+DROUGHT_RISK, severidade CRITICAL, status IN_ANALYSIS.
+
+
+7. RELACIONAMENTO ENTRE TABELAS
+
+monitored_areas 1:N satellite_readings
+
+monitored_areas 1:N climate_alerts
+
+satellite_readings 1:N climate_alerts
+
+Esse relacionamento foi validado por SELECT com JOIN diretamente dentro do container MySQL.
+
+
+8. CRUD TESTADO
+
+Foram testadas as seguintes operações:
+
+- CREATE de área monitorada.
+- READ de área monitorada.
+- CREATE de leitura de satélite.
+- READ de leitura de satélite.
+- CREATE de alerta climático.
+- READ de alerta climático.
+- UPDATE de alerta climático.
+- DELETE de alerta climático.
+
+Após o DELETE, o alerta foi recriado para manter dados disponíveis nas evidências do banco.
+
+
+9. EVIDÊNCIAS DOCKER
+
+Foram coletadas evidências dos seguintes comandos:
+
+docker compose up -d --build
+
+docker ps
+
+docker logs orbitguard-api-rm93032
+
+docker logs orbitguard-db-rm93032
+
+docker container exec -it orbitguard-api-rm93032 sh
+
+pwd
+ls -l
+whoami
+
+Resultado importante:
+whoami = appuser
+pwd = /app
+
+docker container exec -it orbitguard-db-rm93032 bash
+
+pwd
+ls -l
+whoami
+
+
+10. EVIDÊNCIAS DO BANCO
+
+Foram executados SELECTs diretamente no container do banco MySQL:
+
+USE orbitguard_db;
+
+SHOW TABLES;
+
+SELECT * FROM monitored_areas;
+
+SELECT * FROM satellite_readings;
+
+SELECT * FROM climate_alerts;
+
+Também foi executado SELECT com JOIN entre as tabelas para comprovar o relacionamento dos dados.
+
+
+11. PERSISTÊNCIA
+
+A persistência foi testada com os comandos:
+
+docker compose down
+
+docker compose up -d
+
+Após reiniciar os containers, os dados continuaram salvos no banco MySQL.
+
+Isso comprova o uso correto do volume nomeado orbitguard-mysql-data.
+
+
+12. EXECUÇÃO EM NUVEM
+
+A execução em nuvem será feita em uma VM Linux na Azure.
+
+IP público da VM:
+INSERIR_IP_PUBLICO_DA_VM
+
+URL da API:
+http://INSERIR_IP_PUBLICO_DA_VM:8080
+
+URL do Swagger:
+http://localhost:8080/swagger/index.html
+
+Amanhã, após a assinatura Azure estar resolvida, esta seção será atualizada com o IP real e prints da execução em nuvem.
+
+
+13. CONCLUSÃO
+
+O projeto OrbitGuard Climate atende aos requisitos da disciplina de DevOps Tools & Cloud Computing ao executar uma aplicação .NET e um banco MySQL em containers Docker integrados.
+
+A solução possui imagem personalizada da API, usuário não-root, diretório de trabalho definido, variáveis de ambiente, portas expostas, rede Docker compartilhada, volume nomeado, CRUD completo, tabelas relacionadas, logs dos containers, acesso via docker exec e evidências de persistência no banco.
+
+A etapa final será a execução em nuvem na Azure, com gravação do vídeo demonstrativo a partir do clone do repositório.
