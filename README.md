@@ -2,6 +2,8 @@
 
 API conteinerizada para monitoramento de áreas de risco climático usando dados simulados de satélite.
 
+---
+
 ## Sobre o projeto
 
 O **OrbitGuard Climate** é uma solução DevOps criada para a Global Solution 2026/1 da FIAP.
@@ -16,7 +18,8 @@ A solução permite:
 - consultar dados persistidos no banco;
 - testar operações CRUD pela API;
 - executar toda a aplicação com Docker Compose;
-- comprovar persistência dos dados usando volume nomeado.
+- comprovar persistência dos dados usando volume nomeado;
+- executar a solução em uma VM Linux em nuvem.
 
 Toda a solução roda em containers Docker integrados, com uma API .NET e um banco MySQL na mesma rede Docker.
 
@@ -26,13 +29,15 @@ Toda a solução roda em containers Docker integrados, com uma API .NET e um ban
 
 - .NET 9 Web API
 - Entity Framework Core
+- Pomelo Entity Framework Core MySQL
 - MySQL 8.0
 - Docker
 - Docker Compose
 - Swagger
 - Git
 - GitHub
-- Azure VM Ubuntu
+- DigitalOcean Droplet Ubuntu
+- Cloud VM Linux
 
 ---
 
@@ -154,12 +159,16 @@ Explicação:
 
 ## Arquitetura macro da solução
 
+![Arquitetura Macro OrbitGuard Climate](docs/arquitetura-orbitguard.png)
+
 ```text
 Usuário / Professor
         |
         | HTTP :8080
         v
-Azure VM Ubuntu
+Cloud VM Linux
+DigitalOcean Droplet Ubuntu
+IP público: 146.190.218.162
         |
         v
 Docker Compose
@@ -250,6 +259,8 @@ orbitguard-climate/
 │   ├── Program.cs
 │   ├── appsettings.json
 │   └── OrbitGuard.Api.csproj
+├── docs/
+│   └── arquitetura-orbitguard.png
 ├── Dockerfile
 ├── docker-compose.yml
 ├── .dockerignore
@@ -273,7 +284,7 @@ orbitguard-climate/
 ### Clonar o repositório
 
 ```bash
-git clone LINK_DO_REPOSITORIO
+git clone https://github.com/andteixeira10/orbitguard-climate
 cd orbitguard-climate
 ```
 
@@ -283,6 +294,12 @@ cd orbitguard-climate
 
 ```bash
 docker compose up -d --build
+```
+
+Caso o ambiente utilize Docker Compose v1, usar:
+
+```bash
+docker-compose up -d --build
 ```
 
 Esse comando:
@@ -344,7 +361,7 @@ Resultado esperado:
 
 ---
 
-### Acessar o Swagger
+### Acessar o Swagger local
 
 No navegador:
 
@@ -353,6 +370,91 @@ http://localhost:8080/swagger
 ```
 
 O Swagger permite testar os endpoints CRUD da API.
+
+---
+
+## Execução em nuvem
+
+A solução foi executada em uma **DigitalOcean Droplet Ubuntu**, representando uma VM Linux em nuvem.
+
+Dados da execução em nuvem:
+
+```text
+Cloud Provider: DigitalOcean
+Tipo: Droplet Ubuntu
+Hostname: vm-orbitguard-rm93032
+IP público: 146.190.218.162
+Aplicação: Docker Compose com API .NET e MySQL
+```
+
+URL da API em nuvem:
+
+```text
+http://146.190.218.162:8080
+```
+
+URL do Swagger em nuvem:
+
+```text
+http://146.190.218.162:8080/swagger
+```
+
+---
+
+## Como executar na VM Linux em nuvem
+
+### Acessar a VM por SSH
+
+```bash
+ssh root@146.190.218.162
+```
+
+---
+
+### Clonar o repositório
+
+```bash
+git clone https://github.com/andteixeira10/orbitguard-climate.git
+cd orbitguard-climate
+```
+
+---
+
+### Subir os containers na VM
+
+Na VM Linux, foi utilizado Docker Compose v1:
+
+```bash
+docker-compose up -d --build
+```
+
+Também é possível usar Docker Compose v2, caso esteja instalado:
+
+```bash
+docker compose up -d --build
+```
+
+---
+
+### Verificar containers em execução na nuvem
+
+```bash
+docker ps
+```
+
+Resultado esperado:
+
+```text
+orbitguard-api-rm93032
+orbitguard-db-rm93032
+```
+
+Portas publicadas:
+
+```text
+0.0.0.0:8080->8080/tcp
+0.0.0.0:3306->3306/tcp
+```
 
 ---
 
@@ -428,7 +530,29 @@ GET /api/areas
 
 ---
 
-### 3. Criar leitura de satélite
+### 3. Atualizar área monitorada
+
+Endpoint:
+
+```http
+PUT /api/areas/1
+```
+
+Body:
+
+```json
+{
+  "name": "Fazenda Aurora Atualizada",
+  "location": "Ribeirao Preto - SP",
+  "latitude": -21.1775,
+  "longitude": -47.8103,
+  "riskLevel": "HIGH"
+}
+```
+
+---
+
+### 4. Criar leitura de satélite
 
 Endpoint:
 
@@ -450,7 +574,7 @@ Body:
 
 ---
 
-### 4. Listar leituras de satélite
+### 5. Listar leituras de satélite
 
 Endpoint:
 
@@ -460,7 +584,7 @@ GET /api/readings
 
 ---
 
-### 5. Criar alerta climático
+### 6. Criar alerta climático
 
 Endpoint:
 
@@ -483,7 +607,7 @@ Body:
 
 ---
 
-### 6. Listar alertas climáticos
+### 7. Listar alertas climáticos
 
 Endpoint:
 
@@ -493,7 +617,7 @@ GET /api/alerts
 
 ---
 
-### 7. Atualizar alerta climático
+### 8. Atualizar alerta climático
 
 Endpoint:
 
@@ -509,14 +633,14 @@ Body:
   "satelliteReadingId": 1,
   "alertType": "DROUGHT_RISK",
   "severity": "CRITICAL",
-  "description": "Risco critico de seca atualizado apos nova avaliacao dos dados simulados.",
-  "status": "IN_ANALYSIS"
+  "description": "Alerta atualizado apos nova analise dos dados simulados de satelite.",
+  "status": "CONFIRMED"
 }
 ```
 
 ---
 
-### 8. Deletar alerta climático
+### 9. Deletar alerta climático
 
 Endpoint:
 
@@ -527,6 +651,15 @@ DELETE /api/alerts/1
 ---
 
 ## Evidências Docker
+
+### Ver versões instaladas
+
+```bash
+docker --version
+docker-compose --version
+```
+
+---
 
 ### Ver containers rodando
 
@@ -546,7 +679,7 @@ orbitguard-db-rm93032
 ### Ver logs da API
 
 ```bash
-docker logs orbitguard-api-rm93032
+docker logs --tail 100 orbitguard-api-rm93032
 ```
 
 Esse comando demonstra a inicialização da API, a aplicação das migrations e as requisições realizadas nos endpoints.
@@ -556,7 +689,7 @@ Esse comando demonstra a inicialização da API, a aplicação das migrations e 
 ### Ver logs do banco
 
 ```bash
-docker logs orbitguard-db-rm93032
+docker logs --tail 100 orbitguard-db-rm93032
 ```
 
 Esse comando demonstra a inicialização do MySQL.
@@ -612,48 +745,38 @@ ls -l
 whoami
 ```
 
-Para acessar o MySQL dentro do container:
+Para sair:
 
 ```bash
-mysql -uorbitguard_user -porbitguard_pass
+exit
 ```
 
 ---
 
 ## Consultas SQL de evidência
 
-Dentro do MySQL:
+As consultas abaixo são executadas diretamente dentro do container MySQL, usando `docker exec`.
 
-```sql
-USE orbitguard_db;
+### Listar tabelas
 
-SHOW TABLES;
+```bash
+docker exec -e MYSQL_PWD=orbitguard_pass -it orbitguard-db-rm93032 mysql -uorbitguard_user -t -e "USE orbitguard_db; SHOW TABLES;"
+```
 
-SELECT * FROM monitored_areas;
+---
 
-SELECT * FROM satellite_readings;
+### Consultar dados das tabelas
 
-SELECT * FROM climate_alerts;
+```bash
+docker exec -e MYSQL_PWD=orbitguard_pass -it orbitguard-db-rm93032 mysql -uorbitguard_user -t -e "USE orbitguard_db; SELECT 'monitored_areas' AS tabela; SELECT * FROM monitored_areas; SELECT 'satellite_readings' AS tabela; SELECT * FROM satellite_readings; SELECT 'climate_alerts' AS tabela; SELECT * FROM climate_alerts;"
 ```
 
 ---
 
 ### SELECT com relacionamento entre as tabelas
 
-```sql
-SELECT 
-    a.name AS area_name,
-    a.location,
-    r.temperature,
-    r.humidity,
-    r.rainfall,
-    r.vegetation_index,
-    c.alert_type,
-    c.severity,
-    c.status
-FROM climate_alerts c
-JOIN monitored_areas a ON a.id = c.monitored_area_id
-LEFT JOIN satellite_readings r ON r.id = c.satellite_reading_id;
+```bash
+docker exec -e MYSQL_PWD=orbitguard_pass -it orbitguard-db-rm93032 mysql -uorbitguard_user -t -e "USE orbitguard_db; SELECT a.name AS area_name, a.location, r.temperature, r.humidity, r.rainfall, r.vegetation_index, c.alert_type, c.severity, c.status FROM climate_alerts c JOIN monitored_areas a ON a.id = c.monitored_area_id LEFT JOIN satellite_readings r ON r.id = c.satellite_reading_id;"
 ```
 
 Esse SELECT demonstra o relacionamento entre:
@@ -669,19 +792,25 @@ Esse SELECT demonstra o relacionamento entre:
 Para testar a persistência, os containers podem ser removidos sem apagar o volume:
 
 ```bash
-docker compose down
+docker-compose down
 ```
 
 Depois, subir novamente:
 
 ```bash
-docker compose up -d
+docker-compose up -d
+```
+
+Verificar os containers:
+
+```bash
+docker ps
 ```
 
 Consultar os dados persistidos:
 
 ```bash
-docker exec -it orbitguard-db-rm93032 mysql -uorbitguard_user -porbitguard_pass -e "USE orbitguard_db; SELECT * FROM monitored_areas; SELECT * FROM satellite_readings; SELECT * FROM climate_alerts;"
+docker exec -e MYSQL_PWD=orbitguard_pass -it orbitguard-db-rm93032 mysql -uorbitguard_user -t -e "USE orbitguard_db; SELECT 'monitored_areas' AS tabela; SELECT * FROM monitored_areas; SELECT 'satellite_readings' AS tabela; SELECT * FROM satellite_readings; SELECT 'climate_alerts' AS tabela; SELECT * FROM climate_alerts;"
 ```
 
 Se os dados continuarem aparecendo, o volume nomeado está funcionando corretamente.
@@ -689,8 +818,8 @@ Se os dados continuarem aparecendo, o volume nomeado está funcionando corretame
 Observação importante:
 
 ```text
-docker compose down      mantém o volume e preserva os dados
-docker compose down -v   remove o volume e apaga os dados
+docker-compose down      mantém o volume e preserva os dados
+docker-compose down -v   remove o volume e apaga os dados
 ```
 
 ---
@@ -707,6 +836,18 @@ No Docker Compose, ele é montado em:
 
 ```text
 /var/lib/mysql
+```
+
+Para listar volumes:
+
+```bash
+docker volume ls
+```
+
+Para inspecionar o volume:
+
+```bash
+docker volume inspect orbitguard-climate_orbitguard-mysql-data
 ```
 
 Esse volume garante que os dados do banco não sejam perdidos quando os containers são removidos e recriados sem o parâmetro `-v`.
@@ -735,108 +876,35 @@ server=orbitguard-db-rm93032;port=3306;database=orbitguard_db;user=orbitguard_us
 
 ---
 
-## Execução em nuvem
-
-A solução deve ser executada em uma VM Ubuntu na Azure.
-
-Fluxo esperado na VM:
-
-```bash
-git clone LINK_DO_REPOSITORIO
-cd orbitguard-climate
-docker compose up -d --build
-docker ps
-```
-
-A API deverá ser acessada pelo IP público da VM:
-
-```text
-http://IP_PUBLICO_DA_VM:8080
-```
-
-Swagger em nuvem:
-
-```text
-http://IP_PUBLICO_DA_VM:8080/swagger
-```
-
----
-
-## Comandos úteis na VM Azure
-
-Atualizar pacotes:
-
-```bash
-sudo apt update
-```
-
-Instalar Docker:
-
-```bash
-sudo apt install -y docker.io
-```
-
-Habilitar e iniciar Docker:
-
-```bash
-sudo systemctl enable docker
-sudo systemctl start docker
-```
-
-Adicionar usuário atual ao grupo Docker:
-
-```bash
-sudo usermod -aG docker $USER
-```
-
-Aplicar a permissão sem reiniciar a VM:
-
-```bash
-newgrp docker
-```
-
-Instalar Docker Compose Plugin:
-
-```bash
-sudo apt install -y docker-compose-plugin
-```
-
-Testar Docker:
-
-```bash
-docker --version
-docker compose version
-docker ps
-```
-
----
-
 ## Checklist de evidências para o vídeo
 
 Durante o vídeo demonstrativo, mostrar:
 
+- repositório GitHub;
+- VM Linux em nuvem;
 - clone do repositório;
 - entrada na pasta do projeto;
-- execução do `docker compose up -d --build`;
+- execução do `docker-compose up -d --build`;
 - containers rodando com `docker ps`;
-- logs da API com `docker logs orbitguard-api-rm93032`;
-- logs do banco com `docker logs orbitguard-db-rm93032`;
+- logs da API com `docker logs --tail 100 orbitguard-api-rm93032`;
+- logs do banco com `docker logs --tail 100 orbitguard-db-rm93032`;
 - acesso ao container da API com `docker container exec`;
 - comandos `pwd`, `ls -l` e `whoami` na API;
 - acesso ao container do banco com `docker container exec`;
 - comandos `pwd`, `ls -l` e `whoami` no banco;
-- Swagger aberto pelo navegador;
+- Swagger aberto pelo IP público;
 - teste de CRUD;
 - SELECT direto no MySQL;
 - SELECT com relacionamento;
-- teste de persistência com `docker compose down` e `docker compose up -d`.
+- volume nomeado;
+- teste de persistência com `docker-compose down` e `docker-compose up -d`.
 
 ---
 
 ## Parar os containers
 
 ```bash
-docker compose down
+docker-compose down
 ```
 
 ---
@@ -846,7 +914,7 @@ docker compose down
 Atenção: este comando remove o volume e apaga os dados do banco.
 
 ```bash
-docker compose down -v
+docker-compose down -v
 ```
 
 ---
@@ -861,10 +929,22 @@ docker compose down -v
 
 ## Links da entrega
 
-Repositório GitHub: 
+Repositório GitHub:
 
 ```text
 https://github.com/andteixeira10/orbitguard-climate
+```
+
+API em nuvem:
+
+```text
+http://146.190.218.162:8080
+```
+
+Swagger em nuvem:
+
+```text
+http://146.190.218.162:8080/swagger
 ```
 
 Vídeo demonstrativo:
