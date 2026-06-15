@@ -1,0 +1,312 @@
+COMANDOS DA APRESENTAÇÃO - ORBITGUARD CLIMATE
+Autor: André Teixeira Alves Filho - RM 93032
+
+OBJETIVO DESTE ARQUIVO
+Este arquivo serve para duas coisas:
+1. Entender o que cada comando faz, caso alguém pergunte.
+2. Ter, no final, uma parte limpa só com os comandos para copiar e colar rápido na apresentação.
+
+============================================================
+1) CONECTAR NA VM EM NUVEM
+============================================================
+
+Comando no PowerShell:
+
+ssh root@146.190.218.162
+
+O que faz:
+Conecta no servidor Linux em nuvem usando SSH.
+O usuário é root e o IP público da VM é 146.190.218.162.
+
+O que falar:
+"Estou acessando a VM Linux em nuvem por SSH. Essa é a máquina onde o projeto está rodando com Docker."
+
+Observação:
+Se pedir senha, digite a senha da Droplet. No terminal, a senha não aparece enquanto você digita. Isso é normal.
+
+Alternativa:
+Se o SSH não funcionar, usar o Web Console da DigitalOcean.
+
+============================================================
+2) ENTRAR NA PASTA DO PROJETO
+============================================================
+
+Comando:
+
+cd /root/orbitguard-climate
+
+O que faz:
+Entra na pasta onde está o projeto dentro da VM.
+
+O que falar:
+"Agora estou entrando na pasta do projeto dentro da VM."
+
+============================================================
+3) MOSTRAR O NOME DA MÁQUINA
+============================================================
+
+Comando:
+
+hostname
+
+O que faz:
+Mostra o nome da VM Linux.
+
+O que falar:
+"Esse comando mostra o hostname da máquina em nuvem."
+
+Resultado esperado:
+vm-orbitguard-rm93032
+
+============================================================
+4) MOSTRAR A PASTA ATUAL
+============================================================
+
+Comando:
+
+pwd
+
+O que faz:
+Mostra o caminho atual dentro do Linux.
+
+O que falar:
+"Esse comando confirma que estou dentro da pasta do projeto."
+
+Resultado esperado:
+/root/orbitguard-climate
+
+============================================================
+5) MOSTRAR OS CONTAINERS RODANDO
+============================================================
+
+Comando:
+
+docker ps
+
+O que faz:
+Lista os containers que estão em execução.
+
+O que falar:
+"Aqui eu estou mostrando os containers rodando. Temos o container da API .NET e o container do MySQL. A API está publicada na porta 8080 e o banco na porta 3306."
+
+Containers esperados:
+orbitguard-api-rm93032
+orbitguard-db-rm93032
+
+Ponto importante:
+O banco deve aparecer como healthy.
+
+============================================================
+6) TESTAR A API DE DENTRO DA VM
+============================================================
+
+Comando:
+
+curl http://localhost:8080/
+
+O que faz:
+Faz uma requisição HTTP para a API de dentro da própria VM.
+
+O que falar:
+"Esse teste confirma que a API está respondendo dentro da VM em nuvem."
+
+Observação:
+Aqui usamos localhost porque já estamos dentro da VM.
+No navegador, usamos o IP público.
+
+============================================================
+7) ABRIR O SWAGGER PELO IP PÚBLICO
+============================================================
+
+Abrir no navegador:
+
+http://146.190.218.162:8080/swagger
+
+O que faz:
+Abre a documentação interativa da API.
+
+O que falar:
+"Agora estou acessando a API pelo IP público da VM. Isso prova que a aplicação está rodando em nuvem, e não só localmente."
+
+Teste rápido sugerido:
+GET /api/areas
+ou
+GET /api/alerts
+
+============================================================
+8) MOSTRAR AS TABELAS DO BANCO
+============================================================
+
+Comando:
+
+docker exec -e MYSQL_PWD=orbitguard_pass -it orbitguard-db-rm93032 mysql -uorbitguard_user -t -e "USE orbitguard_db; SHOW TABLES;"
+
+O que faz:
+Entra no container do MySQL e executa o comando SHOW TABLES no banco orbitguard_db.
+
+O que falar:
+"Agora estou executando SQL direto dentro do container MySQL. Esse comando mostra as tabelas criadas para a aplicação."
+
+Tabelas esperadas:
+monitored_areas
+satellite_readings
+climate_alerts
+__EFMigrationsHistory
+
+============================================================
+9) CRIAR DADOS DE DEMONSTRAÇÃO, SE O JOIN ESTIVER VAZIO
+============================================================
+
+Use este comando apenas se o SELECT com JOIN não retornar nada.
+
+Comando:
+
+docker exec -e MYSQL_PWD=orbitguard_pass -it orbitguard-db-rm93032 mysql -uorbitguard_user -t -e "USE orbitguard_db; INSERT INTO monitored_areas (name, location, latitude, longitude, risk_level, created_at) VALUES ('Area Apresentacao OrbitGuard', 'Ribeirao Preto - SP', -21.1775, -47.8103, 'HIGH', NOW()); SET @area_id = LAST_INSERT_ID(); INSERT INTO satellite_readings (monitored_area_id, temperature, humidity, rainfall, vegetation_index, captured_at) VALUES (@area_id, 39.2, 18.0, 0.0, 0.27, NOW()); SET @reading_id = LAST_INSERT_ID(); INSERT INTO climate_alerts (monitored_area_id, satellite_reading_id, alert_type, severity, description, status, created_at) VALUES (@area_id, @reading_id, 'DROUGHT_RISK', 'CRITICAL', 'Alerta criado para demonstracao da apresentacao.', 'CONFIRMED', NOW()); SELECT 'dados criados para apresentacao' AS resultado; SELECT @area_id AS area_id, @reading_id AS reading_id;"
+
+O que faz:
+Cria uma área monitorada, uma leitura simulada de satélite e um alerta climático relacionado.
+
+O que falar:
+"Esse comando cria dados relacionados para demonstrar o relacionamento entre as tabelas."
+
+============================================================
+10) MOSTRAR O RELACIONAMENTO COM JOIN
+============================================================
+
+Comando:
+
+docker exec -e MYSQL_PWD=orbitguard_pass -it orbitguard-db-rm93032 mysql -uorbitguard_user -t -e "USE orbitguard_db; SELECT a.name AS area_name, a.location, r.temperature, r.humidity, r.rainfall, r.vegetation_index, c.alert_type, c.severity, c.status FROM climate_alerts c JOIN monitored_areas a ON a.id = c.monitored_area_id LEFT JOIN satellite_readings r ON r.id = c.satellite_reading_id;"
+
+O que faz:
+Executa um SELECT com JOIN relacionando área monitorada, leitura de satélite e alerta climático.
+
+O que falar:
+"Esse JOIN mostra que os dados estão relacionados no banco. Ele junta a área monitorada, a leitura simulada de satélite e o alerta climático."
+
+============================================================
+11) MOSTRAR QUE A API NÃO RODA COMO ROOT
+============================================================
+
+Comando:
+
+docker container exec orbitguard-api-rm93032 whoami
+
+O que faz:
+Executa o comando whoami dentro do container da API.
+
+O que falar:
+"Esse comando mostra que a aplicação está rodando como appuser, e não como root. Isso foi configurado no Dockerfile."
+
+Resultado esperado:
+appuser
+
+============================================================
+12) MOSTRAR O VOLUME DO MYSQL
+============================================================
+
+Comando:
+
+docker volume ls
+
+O que faz:
+Lista os volumes Docker existentes na VM.
+
+O que falar:
+"Esse volume é usado pelo MySQL para persistir os dados. Assim, os dados não dependem somente do ciclo de vida do container."
+
+Volume esperado:
+orbitguard-climate_orbitguard-mysql-data
+ou nome parecido contendo orbitguard-mysql-data
+
+============================================================
+13) SE OS CONTAINERS NÃO ESTIVEREM RODANDO
+============================================================
+
+Use só em caso de emergência.
+
+Comando:
+
+cd /root/orbitguard-climate
+docker-compose up -d
+docker ps
+
+O que faz:
+Sobe os containers novamente usando Docker Compose.
+
+O que falar:
+"Estou subindo os containers já configurados pelo Docker Compose."
+
+Importante:
+Não use docker-compose down -v, porque isso apaga o volume do banco.
+
+============================================================
+14) COMANDOS RÁPIDOS PARA RODAR NA HORA DA APRESENTAÇÃO
+============================================================
+
+Esta parte é para copiar e colar rápido.
+Use preferencialmente nessa ordem.
+
+1. Conectar na VM pelo PowerShell:
+
+ssh root@146.190.218.162
+
+2. Entrar no projeto e provar que está na VM:
+
+cd /root/orbitguard-climate
+hostname
+pwd
+docker ps
+curl http://localhost:8080/
+
+3. Abrir no navegador:
+
+http://146.190.218.162:8080/swagger
+
+4. Mostrar tabelas do banco:
+
+docker exec -e MYSQL_PWD=orbitguard_pass -it orbitguard-db-rm93032 mysql -uorbitguard_user -t -e "USE orbitguard_db; SHOW TABLES;"
+
+5. Mostrar relacionamento com JOIN:
+
+docker exec -e MYSQL_PWD=orbitguard_pass -it orbitguard-db-rm93032 mysql -uorbitguard_user -t -e "USE orbitguard_db; SELECT a.name AS area_name, a.location, r.temperature, r.humidity, r.rainfall, r.vegetation_index, c.alert_type, c.severity, c.status FROM climate_alerts c JOIN monitored_areas a ON a.id = c.monitored_area_id LEFT JOIN satellite_readings r ON r.id = c.satellite_reading_id;"
+
+6. Se o JOIN não retornar nada, criar dados de demonstração:
+
+docker exec -e MYSQL_PWD=orbitguard_pass -it orbitguard-db-rm93032 mysql -uorbitguard_user -t -e "USE orbitguard_db; INSERT INTO monitored_areas (name, location, latitude, longitude, risk_level, created_at) VALUES ('Area Apresentacao OrbitGuard', 'Ribeirao Preto - SP', -21.1775, -47.8103, 'HIGH', NOW()); SET @area_id = LAST_INSERT_ID(); INSERT INTO satellite_readings (monitored_area_id, temperature, humidity, rainfall, vegetation_index, captured_at) VALUES (@area_id, 39.2, 18.0, 0.0, 0.27, NOW()); SET @reading_id = LAST_INSERT_ID(); INSERT INTO climate_alerts (monitored_area_id, satellite_reading_id, alert_type, severity, description, status, created_at) VALUES (@area_id, @reading_id, 'DROUGHT_RISK', 'CRITICAL', 'Alerta criado para demonstracao da apresentacao.', 'CONFIRMED', NOW()); SELECT 'dados criados para apresentacao' AS resultado; SELECT @area_id AS area_id, @reading_id AS reading_id;"
+
+7. Mostrar usuário não-root:
+
+docker container exec orbitguard-api-rm93032 whoami
+
+8. Mostrar volume:
+
+docker volume ls
+
+9. Emergência: subir containers se estiverem parados:
+
+cd /root/orbitguard-climate
+docker-compose up -d
+docker ps
+
+============================================================
+15) O QUE NÃO FAZER NA APRESENTAÇÃO
+============================================================
+
+Não rode:
+
+docker-compose down -v
+
+Motivo:
+Esse comando apaga os containers e também o volume do banco.
+
+Não rode build sem necessidade:
+
+docker-compose up -d --build
+
+Motivo:
+Pode demorar e não é necessário se o projeto já está funcionando.
+
+Não edite código durante a apresentação.
+
+Motivo:
+A apresentação é para demonstrar a solução funcionando em nuvem, não para desenvolver na hora.
