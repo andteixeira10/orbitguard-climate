@@ -1,0 +1,314 @@
+ROTEIRO DE APRESENTAÇÃO - ORBITGUARD CLIMATE
+Versão simples para acompanhar pelo celular
+Tempo alvo: até 6 minutos
+
+DICA PARA USAR:
+Não tente decorar tudo. Leia as frases principais e explique com calma.
+O mais importante é seguir a ordem: ideia, índice, GitHub, arquitetura, nuvem, Swagger, banco, Docker e conclusão.
+
+
+============================================================
+1. ABERTURA E IDEIA DO PROJETO
+============================================================
+
+FALA:
+
+Boa tarde, eu sou o André Teixeira Alves Filho, RM 93032.
+
+O meu projeto se chama OrbitGuard Climate.
+
+A ideia dele é simular uma solução de monitoramento de áreas de risco climático usando dados simulados de satélite.
+
+Na prática, a API trabalha com três informações principais:
+áreas monitoradas, leituras climáticas simuladas e alertas climáticos.
+
+Por exemplo: uma área pode receber uma leitura com temperatura alta, baixa umidade, pouca chuva e índice de vegetação baixo.
+Com esses dados, o sistema pode registrar um alerta de risco climático.
+
+A solução foi feita com uma API em .NET, banco MySQL e Docker.
+E o principal ponto da apresentação é mostrar que tudo está rodando em uma VM Linux em nuvem.
+
+
+============================================================
+2. ÍNDICE DO QUE EU VOU MOSTRAR
+============================================================
+
+FALA:
+
+Antes de executar os comandos, vou passar rapidamente pelos pontos que eu vou mostrar.
+
+Primeiro, vou mostrar o repositório no GitHub e os principais arquivos do projeto.
+
+Depois, vou explicar a arquitetura: a API em um container, o MySQL em outro container, a rede Docker e o volume de persistência.
+
+Em seguida, vou entrar na VM em nuvem e mostrar os containers rodando com Docker.
+
+Depois, vou abrir o Swagger pelo IP público da máquina, para provar que a API está acessível pela internet.
+
+Também vou mostrar o banco MySQL por dentro, com as tabelas e um SELECT com JOIN para provar o relacionamento dos dados.
+
+Por fim, vou mostrar dois pontos importantes do Docker: o volume do banco e o usuário não-root da API.
+
+Esse é o caminho que eu vou seguir na demonstração.
+
+
+============================================================
+3. GITHUB E ARQUIVOS DO PROJETO
+============================================================
+
+TELA:
+Abrir o GitHub:
+https://github.com/andteixeira10/orbitguard-climate
+
+MOSTRAR:
+README.md
+Dockerfile
+docker-compose.yml
+OrbitGuard.Api
+docs/arquitetura, se aparecer no repositório
+
+FALA:
+
+Aqui está o repositório do projeto.
+
+No README ficam as instruções e a explicação geral.
+No Dockerfile está a construção da imagem da API.
+No docker-compose.yml fica a orquestração dos containers.
+E dentro da pasta OrbitGuard.Api está o código da aplicação .NET.
+
+Eu separei o projeto dessa forma para ficar claro o que é aplicação, o que é infraestrutura Docker e o que é documentação.
+
+
+============================================================
+4. ARQUITETURA DA SOLUÇÃO
+============================================================
+
+FALA:
+
+A arquitetura tem dois containers principais.
+
+O primeiro container é a API .NET, chamada orbitguard-api-rm93032.
+
+O segundo container é o banco MySQL, chamado orbitguard-db-rm93032.
+
+Esses dois containers ficam na mesma rede Docker, chamada orbitguard-network.
+
+Um ponto importante é que a API não chama o banco usando localhost.
+Ela chama o banco pelo nome do container: orbitguard-db-rm93032.
+
+Isso funciona porque os containers estão na mesma rede Docker.
+
+O banco usa um volume Docker para persistir os dados.
+Então, mesmo que o container seja recriado, os dados do MySQL ficam salvos no volume.
+
+A API expõe a porta 8080 e o MySQL usa a porta 3306.
+
+
+============================================================
+5. ENTRAR NA VM E PROVAR QUE ESTÁ EM NUVEM
+============================================================
+
+TELA:
+PowerShell ou Web Console da DigitalOcean.
+
+COMANDO PARA CONECTAR PELO POWERSHELL:
+
+ssh root@146.190.218.162
+
+Depois de entrar, rodar:
+
+cd /root/orbitguard-climate
+hostname
+pwd
+docker ps
+curl http://localhost:8080/
+
+FALA ANTES OU DURANTE OS COMANDOS:
+
+Agora eu estou conectado na VM Linux em nuvem.
+
+O hostname mostra o nome da máquina.
+O pwd mostra que eu estou dentro da pasta do projeto.
+O docker ps mostra os containers que estão rodando.
+
+Aqui aparecem os dois containers principais:
+a API e o banco MySQL.
+
+A API está publicada na porta 8080.
+O banco está na porta 3306.
+E o banco aparece como healthy, então ele iniciou corretamente.
+
+O curl testa a API de dentro da própria VM.
+Se ele responde, significa que a aplicação está funcionando dentro do servidor.
+
+
+============================================================
+6. SWAGGER PELO IP PÚBLICO
+============================================================
+
+TELA:
+Abrir no navegador:
+http://146.190.218.162:8080/swagger
+
+EXECUTAR NO SWAGGER:
+GET /api/areas
+ou
+GET /api/alerts
+
+FALA:
+
+Agora eu vou acessar a mesma API pelo navegador.
+
+O ponto importante aqui é que eu não estou usando localhost.
+Estou usando o IP público da VM: 146.190.218.162.
+
+Isso prova que a aplicação está acessível pela internet e rodando em nuvem.
+
+O Swagger permite testar os endpoints da API.
+Aqui eu consigo listar as áreas monitoradas, as leituras simuladas de satélite e os alertas climáticos.
+
+O CRUD completo foi feito na API, e nesta apresentação eu estou mostrando a aplicação funcionando em nuvem.
+
+
+============================================================
+7. BANCO MYSQL E RELACIONAMENTO DOS DADOS
+============================================================
+
+TELA:
+Voltar para o terminal.
+
+COMANDO 1 - MOSTRAR TABELAS:
+
+docker exec -e MYSQL_PWD=orbitguard_pass -it orbitguard-db-rm93032 mysql -uorbitguard_user -t -e "USE orbitguard_db; SHOW TABLES;"
+
+FALA:
+
+Agora eu estou entrando no container do MySQL e executando um comando SQL direto no banco.
+
+O SHOW TABLES mostra as tabelas da aplicação.
+
+As principais são:
+monitored_areas, que guarda as áreas monitoradas;
+satellite_readings, que guarda as leituras simuladas de satélite;
+climate_alerts, que guarda os alertas climáticos.
+
+COMANDO 2 - SELECT COM JOIN:
+
+docker exec -e MYSQL_PWD=orbitguard_pass -it orbitguard-db-rm93032 mysql -uorbitguard_user -t -e "USE orbitguard_db; SELECT a.name AS area_name, a.location, r.temperature, r.humidity, r.rainfall, r.vegetation_index, c.alert_type, c.severity, c.status FROM climate_alerts c JOIN monitored_areas a ON a.id = c.monitored_area_id LEFT JOIN satellite_readings r ON r.id = c.satellite_reading_id;"
+
+FALA:
+
+Agora eu faço um SELECT com JOIN.
+
+Esse comando junta três informações:
+a área monitorada,
+a leitura climática simulada,
+e o alerta gerado para aquela área.
+
+Isso mostra que o banco não tem só tabelas soltas.
+Os dados têm relacionamento entre si.
+
+A área se relaciona com as leituras e também com os alertas.
+E o alerta pode estar relacionado com uma leitura específica.
+
+
+============================================================
+8. PONTOS IMPORTANTES DO DOCKER
+============================================================
+
+COMANDO 1 - USUÁRIO NÃO-ROOT:
+
+docker container exec orbitguard-api-rm93032 whoami
+
+FALA:
+
+Esse comando mostra com qual usuário a API está rodando dentro do container.
+
+O retorno esperado é appuser.
+
+Isso é importante porque no Dockerfile eu configurei a aplicação para não rodar como root.
+É uma prática melhor de segurança.
+
+COMANDO 2 - VOLUME:
+
+docker volume ls
+
+FALA:
+
+Aqui eu mostro os volumes Docker.
+
+O volume do projeto é usado pelo MySQL para guardar os dados.
+
+A ideia do volume é separar os dados do banco do ciclo de vida do container.
+Então, se o container for recriado, os dados continuam no volume.
+
+
+============================================================
+9. CONCLUSÃO
+============================================================
+
+FALA:
+
+Concluindo, o OrbitGuard Climate está rodando em uma VM Linux em nuvem.
+
+A solução tem uma API .NET em container, um banco MySQL em outro container, Docker Compose para subir tudo junto, rede Docker para comunicação entre API e banco, e volume para persistência dos dados.
+
+Também mostrei o Swagger pelo IP público, então a API está acessível pela internet.
+
+No banco, mostrei as tabelas e um SELECT com JOIN, comprovando o relacionamento dos dados.
+
+E no Docker, mostrei o usuário não-root da API e o volume do MySQL.
+
+Com isso, a solução atende ao objetivo de demonstrar uma aplicação conteinerizada, funcional e executando em ambiente de nuvem.
+
+
+============================================================
+10. PLANO DE EMERGÊNCIA
+============================================================
+
+SE O POWERSHELL NÃO CONECTAR:
+
+Usar DigitalOcean > Droplet > Web Console
+
+SE OS CONTAINERS NÃO APARECEREM:
+
+cd /root/orbitguard-climate
+docker-compose up -d
+docker ps
+
+SE O SWAGGER NÃO ABRIR:
+
+docker ps
+curl http://localhost:8080/
+docker logs --tail 50 orbitguard-api-rm93032
+
+NÃO RODAR NA APRESENTAÇÃO:
+
+docker-compose down -v
+
+Esse comando apaga o volume se usado com -v.
+Não usar.
+
+Também evitar rebuild na apresentação, a não ser que seja emergência:
+
+docker-compose up -d --build
+
+
+============================================================
+11. RESUMO ULTRARRÁPIDO PARA OLHAR NO CELULAR
+============================================================
+
+1. Apresentar o OrbitGuard Climate.
+2. Dizer que é API .NET + MySQL + Docker em nuvem.
+3. Mostrar o índice.
+4. Mostrar GitHub.
+5. Explicar dois containers: API e banco.
+6. Explicar rede Docker e volume.
+7. Entrar na VM.
+8. Rodar docker ps e curl.
+9. Abrir Swagger pelo IP público.
+10. Mostrar SHOW TABLES.
+11. Mostrar SELECT com JOIN.
+12. Mostrar whoami = appuser.
+13. Mostrar docker volume ls.
+14. Concluir dizendo que está funcional em nuvem.
