@@ -1,0 +1,945 @@
+SIMULAÇÃO DE DÚVIDAS — ORBITGUARD CLIMATE
+Treino para apresentação individual
+Aluno: André Teixeira Alves Filho — RM 93032
+
+OBJETIVO DESTE ARQUIVO
+Este material é para treinar respostas caso o professor faça perguntas durante ou depois da apresentação.
+A ideia é responder com segurança, mostrando que você entende a solução, a arquitetura, os containers, o banco e as escolhas técnicas.
+
+DICA PRINCIPAL
+Não responda como se estivesse decorando.
+Responda como alguém que construiu, testou, errou, corrigiu e entendeu o projeto.
+
+Use este padrão:
+1. Resposta curta.
+2. Explicação técnica simples.
+3. Relação com o seu projeto.
+
+Exemplo:
+Pergunta: Por que você usou Docker Compose?
+Resposta boa:
+Eu usei Docker Compose porque meu projeto tem mais de um serviço: a API e o banco MySQL. Com o Compose eu consigo subir os dois juntos, configurar rede, variáveis de ambiente, portas e volume em um único arquivo. No meu caso, isso facilita rodar o OrbitGuard tanto localmente quanto na VM em nuvem.
+
+
+============================================================
+1) PERGUNTAS SOBRE A IDEIA DO PROJETO
+============================================================
+
+1. O que é o OrbitGuard Climate?
+
+Resposta:
+O OrbitGuard Climate é uma API para simular o monitoramento de áreas com risco climático. A ideia é trabalhar com dados simulados de satélite, como temperatura, umidade, chuva e índice de vegetação, para gerar alertas climáticos.
+
+Resposta mais completa:
+O projeto não consome um satélite real. Ele simula esse cenário para representar uma solução ligada à economia espacial. A API organiza áreas monitoradas, leituras simuladas e alertas, tudo persistido em um banco MySQL dentro de container.
+
+
+2. Qual problema sua solução tenta resolver?
+
+Resposta:
+Ela tenta ajudar no monitoramento de regiões vulneráveis a problemas climáticos, como seca, calor extremo ou risco ambiental.
+
+Resposta mais completa:
+O objetivo é mostrar como dados observacionais, que poderiam vir de satélites, podem ser usados para apoiar decisões. Por exemplo, uma área com temperatura alta, baixa umidade e baixo índice de vegetação pode gerar um alerta de risco de seca.
+
+
+3. Por que esse projeto tem relação com economia espacial?
+
+Resposta:
+Porque ele usa a ideia de dados de observação da Terra, que são um dos usos mais importantes da tecnologia espacial.
+
+Resposta mais completa:
+Mesmo usando dados simulados, o conceito do projeto se baseia em informações que poderiam vir de satélites. Esses dados podem ser aplicados em agricultura, defesa civil, meio ambiente e monitoramento climático.
+
+
+4. Os dados são reais ou simulados?
+
+Resposta:
+São simulados.
+
+Resposta boa:
+Eu deixei os dados simulados porque o foco da disciplina era DevOps, Docker, nuvem e arquitetura. O projeto representa como uma solução real poderia usar dados de satélite, mas aqui o objetivo foi criar uma API funcional, conteinerizada e em nuvem.
+
+
+5. O que significa “área monitorada” no sistema?
+
+Resposta:
+É uma região cadastrada no sistema que pode receber leituras climáticas e alertas.
+
+Exemplo:
+Uma área pode ser “Ribeirão Preto - SP”, com latitude, longitude e nível de risco. Depois ela pode receber leituras simuladas e alertas relacionados.
+
+
+============================================================
+2) PERGUNTAS SOBRE ARQUITETURA
+============================================================
+
+6. Explique a arquitetura da sua solução.
+
+Resposta:
+A arquitetura tem dois containers principais: um container da API .NET e outro container do MySQL. Eles se comunicam por uma rede Docker e o banco usa volume para persistência.
+
+Resposta mais completa:
+A API recebe as requisições pelo Swagger e pelos endpoints REST. Ela usa Entity Framework para acessar o MySQL. O MySQL fica em um container separado. Os dois containers estão na rede orbitguard-network, e o banco usa o volume orbitguard-mysql-data para manter os dados.
+
+
+7. Por que você separou API e banco em containers diferentes?
+
+Resposta:
+Para separar responsabilidades.
+
+Resposta boa:
+A API é responsável pelas regras, endpoints e comunicação com o usuário. O MySQL é responsável por armazenar os dados. Separar em containers deixa a solução mais organizada, mais fácil de manter e mais parecida com um ambiente real.
+
+
+8. O que aconteceria se a API e o banco estivessem no mesmo container?
+
+Resposta:
+Funcionaria de forma menos organizada e seria uma má prática.
+
+Resposta boa:
+Um container deve ter uma responsabilidade principal. Se eu colocasse API e banco no mesmo container, ficaria mais difícil atualizar, escalar, diagnosticar erro e manter persistência. Por isso separei em dois serviços.
+
+
+9. Como a API encontra o banco?
+
+Resposta:
+Ela encontra o banco pelo nome do container/serviço dentro da rede Docker.
+
+Resposta boa:
+No Docker Compose, a API usa a connection string apontando para orbitguard-db-rm93032. Dentro da rede Docker, esse nome funciona como endereço do banco. Por isso a API não usa localhost para acessar o MySQL.
+
+
+10. Por que não usar localhost na connection string da API?
+
+Resposta:
+Porque dentro do container da API, localhost seria o próprio container da API, não o banco.
+
+Resposta boa:
+Essa é uma dúvida importante. Cada container tem seu próprio ambiente. Se a API tentar acessar localhost, ela procura o MySQL dentro dela mesma. Como o banco está em outro container, eu uso o nome do serviço/container na rede Docker.
+
+
+11. O que é a rede orbitguard-network?
+
+Resposta:
+É a rede Docker criada para permitir a comunicação entre a API e o banco.
+
+Resposta mais completa:
+Com essa rede, os containers conseguem se enxergar pelo nome. Isso permite que a API se conecte ao banco de forma interna, sem depender do IP do container, que pode mudar.
+
+
+12. O que é o volume orbitguard-mysql-data?
+
+Resposta:
+É o volume que guarda os dados do MySQL fora do ciclo de vida do container.
+
+Resposta boa:
+Sem volume, se eu removesse o container do banco, poderia perder os dados. Com volume, os dados ficam persistidos no Docker e podem continuar existindo mesmo se o container for recriado.
+
+
+13. O que significa persistência de dados no seu projeto?
+
+Resposta:
+Significa que os dados do banco continuam salvos mesmo se o container for parado ou recriado.
+
+Resposta boa:
+O MySQL grava os dados no volume Docker. Então a aplicação pode ser reiniciada sem perder automaticamente as áreas, leituras e alertas já cadastrados.
+
+
+14. A aplicação está rodando em localhost ou em nuvem?
+
+Resposta:
+Está rodando em nuvem.
+
+Resposta boa:
+A API está em uma VM Linux na DigitalOcean. Quando eu acesso o Swagger pelo IP público 146.190.218.162 na porta 8080, estou acessando a aplicação pela internet, não pelo localhost do meu computador.
+
+
+15. Como você prova que está em nuvem?
+
+Resposta:
+Eu provo de três formas: acesso pelo IP público, conexão SSH/Web Console na VM e docker ps mostrando os containers rodando dentro da máquina em nuvem.
+
+Resposta boa:
+Além disso, o Swagger abre pelo endereço público da VM. Isso mostra que a API está publicada fora da minha máquina local.
+
+
+============================================================
+3) PERGUNTAS SOBRE DOCKER
+============================================================
+
+16. O que é Docker?
+
+Resposta:
+Docker é uma tecnologia para empacotar aplicações em containers.
+
+Resposta boa:
+Com Docker, eu consigo colocar a aplicação e suas dependências em um ambiente padronizado. Assim, o projeto roda de forma parecida no meu computador e na VM em nuvem.
+
+
+17. O que é um container?
+
+Resposta:
+É um ambiente isolado onde um serviço roda com suas dependências.
+
+Resposta boa:
+No meu projeto, existe um container para a API e outro para o MySQL. Cada um roda isolado, mas eles se comunicam pela rede Docker.
+
+
+18. O que é uma imagem Docker?
+
+Resposta:
+Imagem é o modelo usado para criar containers.
+
+Resposta boa:
+No meu projeto, a imagem da API é construída a partir do Dockerfile. Já o MySQL usa a imagem oficial mysql:8.0.
+
+
+19. Qual a diferença entre imagem e container?
+
+Resposta:
+Imagem é o molde. Container é a execução desse molde.
+
+Exemplo:
+A imagem orbitguard-api-rm93032:1.0 é usada para criar o container orbitguard-api-rm93032.
+
+
+20. Para que serve o Dockerfile?
+
+Resposta:
+Serve para ensinar o Docker a construir a imagem da minha API.
+
+Resposta boa:
+No Dockerfile eu defino a imagem base do .NET, copio o projeto, restauro dependências, publico a aplicação, crio um usuário não-root, exponho a porta 8080 e defino o comando de inicialização da API.
+
+
+21. Por que seu Dockerfile tem duas fases?
+
+Resposta:
+Para separar build e execução.
+
+Resposta boa:
+A primeira fase usa o SDK do .NET para restaurar, compilar e publicar o projeto. A segunda fase usa a imagem runtime do ASP.NET, que é mais adequada para executar a aplicação. Isso deixa a imagem final mais limpa.
+
+
+22. O que é multi-stage build?
+
+Resposta:
+É quando o Dockerfile tem mais de uma etapa de construção.
+
+Resposta boa:
+No meu caso, uma etapa compila a aplicação e a outra executa só o resultado final publicado. Isso evita levar ferramentas de build para a imagem final.
+
+
+23. Por que você criou o usuário appuser?
+
+Resposta:
+Para a API não rodar como root dentro do container.
+
+Resposta boa:
+Rodar como root aumenta o risco de segurança. Mesmo sendo um projeto acadêmico, configurei o appuser para mostrar uma prática melhor de segurança no Dockerfile.
+
+
+24. Como você prova que a API não está rodando como root?
+
+Resposta:
+Com o comando:
+docker container exec orbitguard-api-rm93032 whoami
+
+Resposta esperada:
+appuser
+
+Explicação:
+Esse comando entra no container da API e mostra qual usuário está executando lá dentro.
+
+
+25. Para que serve EXPOSE 8080 no Dockerfile?
+
+Resposta:
+Serve para documentar que a aplicação escuta na porta 8080 dentro do container.
+
+Resposta boa:
+A publicação real da porta acontece no docker-compose.yml, com o mapeamento 8080:8080. O EXPOSE ajuda a indicar a porta usada pela aplicação.
+
+
+26. Para que serve o ENTRYPOINT?
+
+Resposta:
+Define o comando que inicia a aplicação quando o container sobe.
+
+Resposta boa:
+No meu caso, o ENTRYPOINT executa o arquivo OrbitGuard.Api.dll usando o dotnet.
+
+
+27. O que é Docker Compose?
+
+Resposta:
+É uma ferramenta para definir e subir vários containers juntos usando um arquivo YAML.
+
+Resposta boa:
+No meu projeto, o docker-compose.yml configura a API, o banco MySQL, rede, volume, portas, variáveis de ambiente e dependência entre os containers.
+
+
+28. Por que usar Docker Compose e não docker run manual?
+
+Resposta:
+Porque o projeto tem mais de um serviço e várias configurações.
+
+Resposta boa:
+Com docker run eu teria que digitar comandos longos para API, banco, rede, volume e variáveis. Com Compose, tudo fica documentado e repetível no arquivo docker-compose.yml.
+
+
+29. O que significa ports: "8080:8080"?
+
+Resposta:
+Significa que a porta 8080 da VM aponta para a porta 8080 do container da API.
+
+Resposta boa:
+Por isso consigo acessar a API pelo IP público da VM usando :8080.
+
+
+30. O que significa ports: "3306:3306"?
+
+Resposta:
+Significa que a porta do MySQL também está mapeada para a VM.
+
+Resposta:
+Em um ambiente real, eu poderia restringir mais essa porta por segurança. Para o projeto acadêmico, ela ajuda na demonstração e validação do banco.
+
+
+31. O que é healthcheck no banco?
+
+Resposta:
+É uma verificação para saber se o MySQL está pronto para receber conexões.
+
+Resposta boa:
+O Compose usa o healthcheck para esperar o banco ficar saudável antes de subir a API. Isso evita a API tentar conectar antes do MySQL estar pronto.
+
+
+32. O que significa depends_on com condition service_healthy?
+
+Resposta:
+Significa que a API só deve iniciar depois que o banco estiver saudável.
+
+Resposta boa:
+Isso melhora a ordem de inicialização dos containers e reduz erro de conexão no início.
+
+
+33. O que o comando docker ps mostra?
+
+Resposta:
+Mostra os containers em execução.
+
+Resposta boa:
+Na apresentação, ele prova que tanto a API quanto o MySQL estão rodando na VM em nuvem, com as portas publicadas.
+
+
+34. O que você faria se um container não subisse?
+
+Resposta:
+Eu olharia os logs e o status do container.
+
+Comandos:
+docker ps -a
+docker logs orbitguard-api-rm93032
+docker logs orbitguard-db-rm93032
+
+Resposta boa:
+Primeiro eu verificaria se o container parou, depois leria os logs para entender o erro, como falha de conexão, variável errada ou problema no banco.
+
+
+============================================================
+4) PERGUNTAS SOBRE BANCO DE DADOS
+============================================================
+
+35. Qual banco você usou?
+
+Resposta:
+Usei MySQL 8.0 em container.
+
+36. Por que escolheu MySQL?
+
+Resposta:
+Porque é um banco relacional conhecido, fácil de integrar com .NET e bom para demonstrar tabelas, relacionamentos e persistência.
+
+37. Quais são as tabelas principais?
+
+Resposta:
+monitored_areas, satellite_readings e climate_alerts.
+
+38. O que a tabela monitored_areas guarda?
+
+Resposta:
+Guarda as áreas monitoradas, como nome, localização, latitude, longitude e nível de risco.
+
+39. O que a tabela satellite_readings guarda?
+
+Resposta:
+Guarda as leituras simuladas de satélite, como temperatura, umidade, chuva, índice de vegetação e data de captura.
+
+40. O que a tabela climate_alerts guarda?
+
+Resposta:
+Guarda alertas climáticos relacionados a uma área e, quando existir, a uma leitura de satélite.
+
+41. Qual é o relacionamento entre as tabelas?
+
+Resposta:
+Uma área monitorada pode ter várias leituras de satélite e vários alertas climáticos. Um alerta pode estar ligado a uma leitura específica.
+
+Resposta mais completa:
+monitored_areas tem relação um para muitos com satellite_readings.
+monitored_areas tem relação um para muitos com climate_alerts.
+satellite_readings pode se relacionar com climate_alerts.
+
+
+42. Por que o SELECT com JOIN é importante?
+
+Resposta:
+Porque ele prova que os dados estão relacionados no banco.
+
+Resposta boa:
+O JOIN junta a área, a leitura e o alerta em uma única consulta. Isso mostra que a estrutura do banco não é só um cadastro isolado, mas tem relacionamento entre entidades.
+
+
+43. Por que seu JOIN não retornou nada antes?
+
+Resposta:
+Porque não existiam dados relacionados em climate_alerts naquele momento.
+
+Resposta boa:
+O comando estava certo, mas o banco estava sem registros relacionados para mostrar. Depois criei uma área, uma leitura e um alerta conectados entre si para garantir a demonstração.
+
+
+44. Se os dados sumirem, o volume não deveria manter?
+
+Resposta:
+O volume mantém os dados enquanto ele existir. Mas se eu deletar registros com comando SQL ou remover o volume, os dados somem.
+
+Resposta boa:
+Persistência não impede exclusão lógica dos dados. Ela só garante que o armazenamento sobreviva ao ciclo de vida do container.
+
+
+45. O que é uma chave estrangeira?
+
+Resposta:
+É um campo que liga uma tabela à outra.
+
+Exemplo:
+satellite_readings tem monitored_area_id para indicar a qual área aquela leitura pertence.
+
+
+46. O que é CRUD?
+
+Resposta:
+CRUD significa Create, Read, Update e Delete.
+
+Resposta boa:
+No projeto, os controllers permitem criar, listar, atualizar e excluir registros das entidades principais da API.
+
+
+47. O banco foi criado manualmente ou pela aplicação?
+
+Resposta:
+A estrutura foi gerada pela aplicação usando Entity Framework/migrations.
+
+Resposta segura:
+Eu modelei as entidades na API, configurei o contexto do Entity Framework e usei migration para criar as tabelas no MySQL.
+
+
+48. O que é Entity Framework?
+
+Resposta:
+É uma ferramenta ORM do .NET que permite trabalhar com banco usando classes e objetos.
+
+Resposta boa:
+Em vez de escrever SQL para tudo, eu modelo as entidades em C# e o Entity Framework faz a comunicação com o banco MySQL.
+
+
+49. O que é uma migration?
+
+Resposta:
+É uma versão da estrutura do banco gerada a partir das entidades do código.
+
+Resposta boa:
+A migration registra mudanças como criação de tabelas, campos e relacionamentos. Ela ajuda a manter o banco alinhado com o código.
+
+
+============================================================
+5) PERGUNTAS SOBRE API E CÓDIGO
+============================================================
+
+50. Qual tecnologia você usou na API?
+
+Resposta:
+Usei .NET 9 Web API com controllers.
+
+51. Por que usar uma API REST?
+
+Resposta:
+Porque ela permite expor endpoints HTTP para consultar e manipular dados.
+
+Resposta boa:
+Com REST, consigo testar facilmente pelo Swagger e separar o frontend, se ele existisse, da lógica da API.
+
+
+52. O que são endpoints?
+
+Resposta:
+São as rotas da API que recebem requisições.
+
+Exemplo:
+GET /api/areas lista áreas monitoradas.
+POST /api/areas cria uma nova área.
+
+
+53. Quais endpoints principais existem?
+
+Resposta:
+Existem endpoints para áreas, leituras e alertas:
+api/areas
+api/readings
+api/alerts
+
+54. O que o Swagger faz?
+
+Resposta:
+O Swagger documenta e permite testar a API pelo navegador.
+
+Resposta boa:
+Ele ajuda na apresentação porque consigo executar requisições sem precisar de Postman ou frontend.
+
+
+55. Por que o Swagger pelo IP público é importante?
+
+Resposta:
+Porque prova que a API está acessível em nuvem.
+
+Resposta boa:
+Se eu acessasse localhost no meu computador, não provaria a nuvem. Usando o IP público da VM, mostro que a aplicação está disponível pela internet.
+
+
+56. O que é uma variável de ambiente no seu projeto?
+
+Resposta:
+É uma configuração passada para o container sem deixar fixa no código.
+
+Exemplo:
+A connection string do banco é passada no docker-compose.yml por variável de ambiente.
+
+57. Por que a connection string fica no docker-compose?
+
+Resposta:
+Porque o endereço do banco, usuário e senha dependem do ambiente onde a aplicação está rodando.
+
+Resposta boa:
+Isso evita deixar a configuração travada dentro do código. Em produção, o ideal seria usar secrets ou um serviço seguro de configuração.
+
+
+58. O que você melhoraria em uma versão de produção?
+
+Resposta:
+Eu protegeria melhor as senhas, restringiria acesso ao MySQL, colocaria HTTPS, logs estruturados, monitoramento, backup e talvez CI/CD.
+
+Resposta boa:
+Para o checkpoint, foquei na aplicação funcionando em container e nuvem. Para produção, segurança e observabilidade seriam prioridade.
+
+
+59. A API tem frontend?
+
+Resposta:
+Não. O foco foi uma API backend com Swagger para teste.
+
+Resposta boa:
+O Swagger cumpre o papel de interface de teste e documentação dos endpoints.
+
+
+60. Como você testou o funcionamento?
+
+Resposta:
+Testei pelos endpoints no Swagger, pelo curl dentro da VM, pelo docker ps e por comandos SQL no MySQL.
+
+Resposta boa:
+Também validei a comunicação entre API e banco usando registros persistidos e SELECT com JOIN.
+
+
+============================================================
+6) PERGUNTAS SOBRE NUVEM E VM
+============================================================
+
+61. Qual nuvem você usou?
+
+Resposta:
+Usei uma VM Linux na DigitalOcean.
+
+62. Por que usou DigitalOcean?
+
+Resposta:
+Porque eu precisava de uma VM Linux em nuvem para executar Docker e publicar a aplicação.
+
+Resposta segura se perguntarem sobre Azure:
+A ideia inicial era usar Azure, mas encontrei limitações de cota/SKU na assinatura acadêmica. Como o requisito principal era executar em nuvem com Docker, usei DigitalOcean para garantir a demonstração funcionando.
+
+
+63. O que é uma VM?
+
+Resposta:
+É uma máquina virtual rodando em um provedor de nuvem.
+
+Resposta boa:
+No meu projeto, a VM tem Ubuntu, Docker e Docker Compose instalados. É nela que os containers estão rodando.
+
+
+64. O que é SSH?
+
+Resposta:
+É uma forma segura de acessar o terminal da VM remotamente.
+
+Resposta boa:
+Eu uso SSH pelo PowerShell ou Web Console para entrar na VM e administrar os containers.
+
+
+65. Por que o comando curl usa localhost dentro da VM?
+
+Resposta:
+Porque dentro da VM, localhost representa a própria máquina onde a porta 8080 foi publicada.
+
+Resposta boa:
+O curl http://localhost:8080 testa a API do ponto de vista da VM. Já o navegador usando http://146.190.218.162:8080/swagger testa pelo IP público.
+
+
+66. Qual a diferença entre localhost na sua máquina e localhost na VM?
+
+Resposta:
+Localhost sempre representa a máquina onde o comando está sendo executado.
+
+Resposta boa:
+Se eu rodo no meu PC, localhost é meu PC. Se eu rodo dentro da VM, localhost é a VM. Por isso no navegador eu uso o IP público para acessar a aplicação em nuvem.
+
+
+67. Como você garante que o projeto continua rodando?
+
+Resposta:
+Enquanto a VM estiver ligada e os containers estiverem em execução, a API continua acessível.
+
+Resposta boa:
+Eu posso verificar isso com docker ps e acessar o Swagger pelo IP público.
+
+
+68. O que faria se a VM reiniciasse?
+
+Resposta:
+Eu entraria na VM e rodaria docker-compose up -d dentro da pasta do projeto.
+
+Resposta boa:
+Esse comando sobe os containers em segundo plano com as configurações do docker-compose.yml.
+
+
+69. O que significa subir em segundo plano?
+
+Resposta:
+Significa que os containers continuam rodando mesmo depois que o terminal fica livre.
+
+Comando:
+docker-compose up -d
+
+
+============================================================
+7) PERGUNTAS MAIS CRÍTICAS PARA SABER SE VOCÊ ENTENDEU
+============================================================
+
+70. Me explica o fluxo completo de uma requisição no seu sistema.
+
+Resposta boa:
+Quando eu acesso o Swagger pelo IP público, a requisição chega na VM pela porta 8080. Essa porta está mapeada para o container da API. A API recebe a requisição no endpoint, processa no controller, usa o Entity Framework para acessar o MySQL e retorna a resposta em JSON. Se precisar consultar dados, ela fala com o banco usando o nome orbitguard-db-rm93032 dentro da rede Docker.
+
+
+71. Se eu remover o container da API, perco os dados?
+
+Resposta:
+Não, porque os dados estão no MySQL e no volume do banco, não no container da API.
+
+Resposta completa:
+Eu posso recriar o container da API sem perder os dados. O cuidado maior é não remover o volume do MySQL.
+
+
+72. Se eu remover o container do banco, perco os dados?
+
+Resposta:
+Não necessariamente. Se o volume continuar existindo, os dados continuam.
+
+Resposta completa:
+O container pode ser recriado usando o mesmo volume. Mas se eu remover o volume, aí os dados são perdidos.
+
+
+73. Se eu executar docker-compose down -v, o que acontece?
+
+Resposta:
+Ele derruba os containers e remove os volumes.
+
+Resposta importante:
+Esse comando eu não devo usar na apresentação, porque pode apagar os dados persistidos do MySQL.
+
+
+74. Por que você não vai rodar docker-compose up -d --build na apresentação?
+
+Resposta:
+Porque o projeto já está rodando e rebuild pode demorar ou gerar risco desnecessário.
+
+Resposta boa:
+Na apresentação, o objetivo é demonstrar a solução funcionando em nuvem. Build completo foi feito antes. Na hora eu só valido com docker ps, curl, Swagger e banco.
+
+
+75. Como você sabe que a API e o banco estão no mesmo Docker Compose?
+
+Resposta:
+Porque os dois serviços estão definidos no docker-compose.yml, usando a mesma rede e sendo iniciados juntos.
+
+76. Onde está configurada a senha do banco?
+
+Resposta:
+No docker-compose.yml, dentro das variáveis de ambiente do container MySQL e da connection string da API.
+
+Resposta de segurança:
+Para produção, eu não deixaria senha exposta no Compose. Usaria secrets ou serviço seguro de configuração. Para o projeto acadêmico, mantive visível para facilitar a avaliação e execução.
+
+
+77. Por que você não colocou tudo direto na VM sem Docker?
+
+Resposta:
+Porque o requisito e a proposta envolvem DevOps e conteinerização.
+
+Resposta boa:
+Com Docker eu deixo o ambiente mais reprodutível. Não preciso instalar .NET e MySQL direto na VM de forma manual para rodar a aplicação. Os containers carregam o ambiente necessário.
+
+
+78. O que você aprendeu fazendo esse projeto?
+
+Resposta boa:
+Eu aprendi a criar uma API com banco, transformar a aplicação em imagem Docker, usar Docker Compose para subir API e MySQL juntos, configurar rede, volume, variáveis de ambiente e publicar tudo em uma VM Linux em nuvem. Também aprendi a validar a solução com comandos reais, como docker ps, curl e SQL dentro do container.
+
+
+79. Qual foi a maior dificuldade?
+
+Resposta segura:
+A maior dificuldade foi garantir que tudo funcionasse fora do ambiente local, principalmente a conexão da API com o banco dentro da rede Docker e a publicação na VM em nuvem. Também precisei lidar com acesso SSH e validação dos containers em execução.
+
+
+80. Como você resolveria um erro de conexão da API com o banco?
+
+Resposta:
+Eu verificaria se o banco está rodando, se está healthy, se a connection string usa o nome correto do container e se os dois serviços estão na mesma rede Docker.
+
+Comandos:
+docker ps
+docker logs orbitguard-api-rm93032
+docker logs orbitguard-db-rm93032
+docker network inspect orbitguard-climate_orbitguard-network
+
+
+81. O que você faria se o Swagger não abrisse?
+
+Resposta:
+Eu verificaria se a API está rodando, se a porta 8080 está publicada e se o container não gerou erro.
+
+Comandos:
+docker ps
+curl http://localhost:8080/
+docker logs --tail 50 orbitguard-api-rm93032
+
+
+82. O que você faria se o banco não aparecesse como healthy?
+
+Resposta:
+Eu verificaria os logs do MySQL, as variáveis de ambiente e se o volume não está corrompido.
+
+Comandos:
+docker logs orbitguard-db-rm93032
+docker ps
+docker volume ls
+
+
+83. O que você faria se o JOIN não retornasse nada?
+
+Resposta:
+Eu verificaria se existem dados relacionados nas três tabelas.
+
+Resposta boa:
+O JOIN depende de registros conectados por IDs. Se existir área, mas não existir alerta ou leitura relacionada, a consulta pode voltar vazia. Por isso eu criei dados de demonstração relacionados.
+
+
+84. Como você sabe que não foi só algo gerado sem funcionar?
+
+Resposta boa:
+Porque eu consigo demonstrar a solução funcionando ao vivo. Eu entro na VM em nuvem, mostro os containers rodando, acesso o Swagger pelo IP público, executo consultas SQL no banco e provo o relacionamento dos dados. Isso mostra execução real, não só código no repositório.
+
+
+85. Qual parte você mesmo precisou entender para conseguir apresentar?
+
+Resposta boa:
+Principalmente a comunicação entre containers. Eu entendi que localhost dentro da API não aponta para o banco, então a conexão precisa usar o nome do container na rede Docker. Também entendi o papel do volume, do healthcheck, do Dockerfile e da porta publicada.
+
+
+============================================================
+8) PERGUNTAS QUE PODEM SURGIR DURANTE A DEMONSTRAÇÃO
+============================================================
+
+86. Professor: Por que você está usando o Web Console e não SSH?
+
+Resposta:
+Porque o Web Console também acessa diretamente a VM na nuvem. Ele é uma alternativa ao SSH pelo PowerShell. Os comandos e a máquina são os mesmos.
+
+87. Professor: Esse IP é da sua máquina local?
+
+Resposta:
+Não. Esse é o IP público da VM na DigitalOcean.
+
+88. Professor: O que esse docker ps está provando?
+
+Resposta:
+Está provando que os containers da API e do MySQL estão rodando agora dentro da VM em nuvem.
+
+89. Professor: O que esse curl está provando?
+
+Resposta:
+Está provando que a API responde internamente dentro da VM na porta 8080.
+
+90. Professor: O que o Swagger está provando?
+
+Resposta:
+Está provando que a API está acessível pelo navegador usando o IP público da VM.
+
+91. Professor: Por que você mostrou o banco pelo terminal?
+
+Resposta:
+Para provar que existe um MySQL real em container, com tabelas e dados persistidos, e não só endpoints mockados.
+
+92. Professor: O que o comando whoami prova?
+
+Resposta:
+Prova que o processo dentro do container da API está rodando como appuser, não como root.
+
+93. Professor: O que o docker volume ls prova?
+
+Resposta:
+Mostra que existe volume Docker configurado para persistência, principalmente usado pelo MySQL.
+
+
+============================================================
+9) RESPOSTAS CURTAS PARA NÃO TRAVAR
+============================================================
+
+O que é o projeto?
+É uma API em .NET que simula monitoramento climático com dados de satélite e alertas.
+
+Onde está rodando?
+Em uma VM Linux na DigitalOcean.
+
+Como prova que está na nuvem?
+Pelo IP público, pelo Web Console/SSH e pelos containers rodando na VM.
+
+Quais containers existem?
+Um da API .NET e outro do MySQL.
+
+Por que Docker?
+Para empacotar a aplicação e rodar de forma padronizada.
+
+Por que Docker Compose?
+Para subir API, banco, rede, volume e variáveis juntos.
+
+Por que MySQL?
+Porque o projeto precisa persistir dados relacionais.
+
+Para que serve o volume?
+Para manter os dados do banco mesmo se o container for recriado.
+
+Para que serve a rede Docker?
+Para permitir que API e banco se comuniquem pelo nome do container.
+
+Por que appuser?
+Para evitar rodar a API como root no container.
+
+O que o JOIN mostra?
+Mostra o relacionamento entre área monitorada, leitura de satélite e alerta climático.
+
+O que o Swagger mostra?
+Mostra e permite testar os endpoints da API pelo navegador.
+
+O que você melhoraria?
+Segurança de secrets, HTTPS, CI/CD, monitoramento, backup e logs estruturados.
+
+
+============================================================
+10) COMO RESPONDER SE PERGUNTAREM SOBRE IA
+============================================================
+
+Pergunta possível:
+Você usou IA para fazer esse projeto?
+
+Resposta honesta e segura:
+Eu usei IA como apoio para organizar ideias, revisar comandos e me ajudar a entender erros, mas eu precisei executar o projeto, testar na VM, validar containers, banco, Swagger e corrigir problemas na prática. A parte importante para mim foi entender como a solução funciona e conseguir demonstrar tudo rodando.
+
+Resposta alternativa:
+A IA foi uma ferramenta de apoio, assim como documentação e exemplos de estudo. Mas eu estou demonstrando o projeto funcionando em nuvem e consigo explicar a arquitetura, os comandos e as escolhas técnicas.
+
+Evite dizer:
+“A IA fez tudo.”
+“Eu só copiei.”
+“Não sei, foi o ChatGPT.”
+
+Diga:
+“Usei como suporte, mas validei, rodei, corrigi e entendi o fluxo.”
+
+
+============================================================
+11) MINI SIMULAÇÃO FINAL
+============================================================
+
+Professor:
+Me explica rapidamente sua solução.
+
+Resposta:
+O OrbitGuard Climate é uma API .NET conteinerizada que simula o monitoramento de áreas de risco climático com dados de satélite. Ela roda em uma VM Linux na nuvem, com dois containers principais: API e MySQL. A API expõe endpoints REST pelo Swagger e o banco guarda áreas, leituras e alertas relacionados.
+
+Professor:
+Como você prova que está funcionando?
+
+Resposta:
+Eu mostro o docker ps dentro da VM, faço curl na API, acesso o Swagger pelo IP público e executo SQL direto no container MySQL.
+
+Professor:
+Qual foi a parte mais importante do Docker nesse projeto?
+
+Resposta:
+O Docker Compose, porque ele organiza os dois containers, a rede, o volume, as portas e as variáveis de ambiente. Sem ele, eu teria que configurar tudo manualmente.
+
+Professor:
+Qual cuidado você teve com persistência?
+
+Resposta:
+Usei um volume nomeado para o MySQL. Assim os dados ficam fora do container e não se perdem simplesmente ao recriar o container.
+
+Professor:
+Como a API conecta no banco?
+
+Resposta:
+Ela usa a rede Docker e conecta pelo nome do container do banco, orbitguard-db-rm93032, não por localhost.
+
+Professor:
+Por que não localhost?
+
+Resposta:
+Porque dentro do container da API, localhost é a própria API. O banco está em outro container, então preciso usar o nome dele na rede Docker.
+
+Professor:
+O que você melhoraria?
+
+Resposta:
+Eu adicionaria HTTPS, secrets para senhas, backup automático do banco, monitoramento, logs estruturados e uma pipeline CI/CD para automatizar build e deploy.
+
+
+============================================================
+12) FRASE FINAL PARA MOSTRAR DOMÍNIO
+============================================================
+
+“Eu não estou mostrando só o código. Estou mostrando o sistema rodando em uma VM em nuvem, com API e banco separados em containers, comunicação por rede Docker, dados persistidos em volume e endpoints testáveis pelo Swagger. Por isso consigo provar a execução e também explicar a arquitetura.”
